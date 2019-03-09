@@ -1,0 +1,8 @@
+[package]
+name = "amethyst-tanks-rs"
+version = "0.1.0"
+authors = ["AlexNav73 <fifthhorseman@mail.ru>"]
+edition = "2018"
+
+[dependencies]
+amethyst = "0.10.0"
