@@ -1,14 +1,17 @@
 mod battlefield;
 mod components;
+mod config;
 mod consts;
 mod states;
 mod systems;
 mod wall;
 
+use crate::config::GameConfig;
 use crate::states::gameplay::GamePlay;
 use crate::systems::controller::ControllerSystem;
 
 use amethyst::{
+    config::Config,
     core::transform::TransformBundle,
     input::InputBundle,
     prelude::*,
@@ -23,11 +26,15 @@ fn main() -> amethyst::Result<()> {
         .start();
 
     let app_root = application_root_dir();
+
     let path = format!("{}/resources/display_config.ron", app_root);
     let display_config = DisplayConfig::load(&path);
 
     let path = format!("{}/resources/bindings_config.ron", app_root);
     let input_bundle = InputBundle::<String, String>::new().with_bindings_from_file(path)?;
+
+    let path = format!("{}/resources/game_config.ron", app_root);
+    let game_config = GameConfig::load_no_fallback(&path);
 
     let stage = Stage::with_backbuffer()
         .clear_target([0.0, 0.0, 0.0, 1.0], 1.0)
@@ -39,7 +46,9 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
         .with(ControllerSystem, "controller_system", &["input_system"]);
-    let mut game = Application::new("./", GamePlay::new(), game_data)?;
+    let mut game = Application::build("./", GamePlay::new())?
+        .with_resource(game_config)
+        .build(game_data)?;
 
     game.run();
 

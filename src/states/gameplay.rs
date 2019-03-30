@@ -5,7 +5,7 @@ use crate::consts::{BATTLEFIELD_HEIGHT, BATTLEFIELD_WIDTH, WALL_SPRITESHEET, WAL
 use amethyst::{
     assets::{AssetStorage, Loader},
     core::transform::Transform,
-    input::is_key_down,
+    input::{is_close_requested, is_key_down},
     prelude::*,
     renderer::{
         Camera, PngFormat, Projection, SpriteSheet, SpriteSheetFormat, SpriteSheetHandle, Texture,
@@ -41,7 +41,7 @@ impl SimpleState for GamePlay {
         event: StateEvent,
     ) -> SimpleTrans {
         if let StateEvent::Window(event) = &event {
-            if is_key_down(&event, VirtualKeyCode::Escape) {
+            if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
                 //return Trans::Push(Box::new(PausedState));
                 return Trans::Quit;
             }
