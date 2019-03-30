@@ -1,4 +1,4 @@
-use crate::components::wall::Wall;
+use crate::components::Wall;
 
 use amethyst::{
     core::{timing::Time, Transform},
@@ -24,7 +24,7 @@ impl<'s> System<'s> for ControllerSystem {
                 transform.translate_y((vertical * delta * 5.0) as f32);
             }
             if let Some(horizontal) = input.axis_value("horizontal") {
-                transform.translate_x((horizontal * delta * 5.0) as f32);
+                transform.roll_local((horizontal * delta * 5.0) as f32);
             }
         }
     }

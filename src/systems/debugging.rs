@@ -1,5 +1,5 @@
-use crate::components::ui::DebugText;
-use crate::components::wall::Wall;
+use crate::components::DebugText;
+use crate::components::Wall;
 
 use amethyst::{
     core::Transform,

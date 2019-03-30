@@ -22,6 +22,14 @@ use amethyst::{
 
 fn main() -> amethyst::Result<()> {
     Logger::from_config(Default::default())
+        .level_for(
+            "amethyst_renderer::pass::flat2d::interleaved",
+            amethyst::LogLevelFilter::Error,
+        )
+        .level_for(
+            "amethyst_renderer::pipe::effect",
+            amethyst::LogLevelFilter::Warn,
+        )
         .level_for("gfx_device_gl", amethyst::LogLevelFilter::Warn)
         .level_for("amethyst_assets", amethyst::LogLevelFilter::Warn)
         .start();

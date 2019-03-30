@@ -94,7 +94,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 }
 
 fn view_debug_text(world: &mut World) {
-    use crate::components::ui::DebugText;
+    use crate::components::DebugText;
 
     let font = world.read_resource::<Loader>().load(
         "font/square.ttf",

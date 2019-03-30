@@ -1,4 +1,4 @@
-use crate::components::wall::Wall;
+use crate::components::Wall;
 use crate::consts::BATTLEFIELD_HEIGHT;
 
 use amethyst::{
