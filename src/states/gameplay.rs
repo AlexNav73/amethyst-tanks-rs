@@ -11,6 +11,7 @@ use amethyst::{
         Camera, PngFormat, Projection, SpriteSheet, SpriteSheetFormat, SpriteSheetHandle, Texture,
         TextureMetadata, VirtualKeyCode,
     },
+    ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 
 pub struct GamePlay {
@@ -33,6 +34,7 @@ impl SimpleState for GamePlay {
 
         add_camera(&mut world);
         self.battlefield.add_walls(&mut world, sprite_sheet_handle);
+        view_debug_text(&mut world);
     }
 
     fn handle_event(
@@ -89,4 +91,39 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
         (),
         &sprite_sheet_store,
     )
+}
+
+fn view_debug_text(world: &mut World) {
+    use crate::components::ui::DebugText;
+
+    let font = world.read_resource::<Loader>().load(
+        "font/square.ttf",
+        TtfFormat,
+        Default::default(),
+        (),
+        &world.read_resource(),
+    );
+    let transform = UiTransform::new(
+        "log".to_string(),
+        Anchor::TopLeft,
+        50.,
+        -50.,
+        1.,
+        800.,
+        20.,
+        0,
+    );
+
+    let log = world
+        .create_entity()
+        .with(transform)
+        .with(UiText::new(
+            font.clone(),
+            "".to_string(),
+            [1., 1., 1., 1.],
+            14.,
+        ))
+        .build();
+
+    world.add_resource(DebugText { log });
 }

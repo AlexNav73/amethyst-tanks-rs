@@ -1,5 +1,5 @@
+use crate::components::wall::Wall;
 use crate::consts::BATTLEFIELD_HEIGHT;
-use crate::wall::Wall;
 
 use amethyst::{
     core::transform::Transform,
