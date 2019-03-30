@@ -60,7 +60,7 @@ fn add_wall_to_world(wall: Wall, world: &mut World, sprite_sheet: SpriteSheetHan
     let mut transform = Transform::default();
 
     transform.set_xyz(wall.x * 1.5, wall.y, 0.0);
-    transform.set_scale(1.5, 1.5, 0.0);
+    transform.set_scale(0.05, 0.05, 0.0);
 
     let sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet.clone(),
