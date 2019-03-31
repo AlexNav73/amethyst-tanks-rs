@@ -8,6 +8,8 @@ use amethyst::{
 };
 use pathfinding::prelude::{absdiff, astar};
 
+const SCALE: f32 = 0.05;
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 struct Pos(i32, i32);
 
@@ -50,7 +52,7 @@ impl Battlefield {
     pub fn add_walls(&self, world: &mut World, sprite_sheet: SpriteSheetHandle) {
         let mut wall: Wall = Default::default();
         wall.y = BATTLEFIELD_HEIGHT / 2.0;
-        wall.x = wall.width * 0.5;
+        wall.x = wall.width * SCALE * 0.5;
 
         add_wall_to_world(wall, world, sprite_sheet);
     }
@@ -59,8 +61,8 @@ impl Battlefield {
 fn add_wall_to_world(wall: Wall, world: &mut World, sprite_sheet: SpriteSheetHandle) {
     let mut transform = Transform::default();
 
-    transform.set_xyz(wall.x * 1.5, wall.y, 0.0);
-    transform.set_scale(0.05, 0.05, 0.0);
+    transform.set_xyz(wall.x, wall.y, 0.0);
+    transform.set_scale(SCALE, SCALE, 0.0);
 
     let sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet.clone(),
