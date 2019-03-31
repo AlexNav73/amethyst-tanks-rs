@@ -25,14 +25,24 @@ impl SimpleState for LoadingState {
         self.sprite_sheet_handle = Some(self.load_sprite_sheet(world));
     }
 
-    fn handle_event(
-        &mut self,
-        _data: StateData<'_, GameData<'_, '_>>,
-        _event: StateEvent,
-    ) -> SimpleTrans {
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         if self.progress_counter.is_complete() {
             let sprite = self.sprite_sheet_handle.take().unwrap();
+
             return Trans::Switch(Box::new(GamePlay::new(sprite)));
+        } else {
+            use crate::components::DebugText;
+            let StateData { world, .. } = data;
+
+            let mut ui_text = world.write_storage::<UiText>();
+            let debug_text = world.read_resource::<DebugText>();
+
+            if let Some(text) = ui_text.get_mut(debug_text.log) {
+                let total_assets = self.progress_counter.num_assets();
+                let loading = self.progress_counter.num_loading();
+
+                text.text = format!("Loading {:?} of {:?}", loading, total_assets);
+            }
         }
 
         Trans::None

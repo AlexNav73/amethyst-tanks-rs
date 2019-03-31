@@ -7,7 +7,10 @@ mod systems;
 
 use crate::config::GameConfig;
 use crate::states::loading::LoadingState;
-use crate::systems::{controller::ControllerSystem, debugging::DebuggingSystem};
+use crate::systems::{
+    controller::ControllerSystem,
+    debugging::DebuggingSystem
+};
 
 use amethyst::{
     config::Config,

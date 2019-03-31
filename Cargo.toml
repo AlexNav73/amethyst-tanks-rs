@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 pathfinding = "1.1.12"
 serde = "1.0.89"
+log = "0.4.6"
 
 [dependencies.amethyst]
 version = "0.10.0"
