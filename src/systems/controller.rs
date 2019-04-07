@@ -1,7 +1,7 @@
 use crate::components::Wall;
 
 use amethyst::{
-    core::{timing::Time, Transform},
+    core::{nalgebra::Vector3, timing::Time, Transform},
     ecs::{Join, Read, ReadStorage, System, WriteStorage},
     input::InputHandler,
 };
@@ -21,10 +21,12 @@ impl<'s> System<'s> for ControllerSystem {
         let delta = time.delta_seconds() as f64;
         for (_, transform) in (&walls, &mut transforms).join() {
             if let Some(vertical) = input.axis_value("vertical") {
-                transform.translate_y((vertical * delta * 5.0) as f32);
+                let direction = Vector3::y_axis().into_inner() * vertical as f32;
+                transform.move_local(direction);
             }
             if let Some(horizontal) = input.axis_value("horizontal") {
-                transform.roll_local((horizontal * delta * 5.0) as f32);
+                let angle = (horizontal * delta * 5.0) as f32;
+                transform.rotate_local(Vector3::z_axis(), -angle);
             }
         }
     }

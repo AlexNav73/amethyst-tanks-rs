@@ -1,7 +1,7 @@
 [package]
 name = "amethyst-tanks-rs"
 version = "0.1.0"
-authors = ["AlexNav73 <fifthhorseman@mail.ru>"]
+authors = ["AlexNav73 <alexandr.navitskiy@gmail.com>"]
 edition = "2018"
 
 [dependencies]
@@ -11,4 +11,3 @@ log = "0.4.6"
 
 [dependencies.amethyst]
 version = "0.10.0"
-features = ["nightly"]

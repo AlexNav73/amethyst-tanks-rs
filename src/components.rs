@@ -2,6 +2,10 @@ use crate::consts::{WALL_HEIGHT, WALL_WIDTH};
 
 use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 
+pub struct DebugText {
+    pub log: Entity,
+}
+
 pub struct Wall {
     pub x: f32,
     pub y: f32,
@@ -28,8 +32,4 @@ impl Default for Wall {
 
 impl Component for Wall {
     type Storage = DenseVecStorage<Self>;
-}
-
-pub struct DebugText {
-    pub log: Entity,
 }
