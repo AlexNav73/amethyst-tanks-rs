@@ -31,15 +31,24 @@ impl SimpleState for LoadingState {
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         if self.progress_counter.is_complete() {
-            let sprite = self.sprite_sheet_handle.take().unwrap();
-            let map_storage = data.world.read_resource::<AssetStorage<Map>>();
-            let map_handle = self.map_handle.take().unwrap();
-            let map = map_storage
-                .get(&map_handle)
-                .expect("Acquire map by handle failed");
-            let battlefield = Battlefield::from_file(map);
+            use crate::components::{Grass, Wall};
 
-            return Trans::Switch(Box::new(GamePlay::new(battlefield, sprite)));
+            let sprite = self.sprite_sheet_handle.take().unwrap();
+            let battlefield = {
+                let map_storage = data.world.read_resource::<AssetStorage<Map>>();
+                let map_handle = self.map_handle.take().unwrap();
+                let map = map_storage
+                    .get(&map_handle)
+                    .expect("Acquire map by handle failed");
+                Battlefield::from_file(map)
+            };
+
+            data.world.register::<Wall>();
+            data.world.register::<Grass>();
+
+            battlefield.init_grid(data.world, sprite);
+
+            return Trans::Switch(Box::new(GamePlay));
         } else {
             use crate::components::DebugText;
             let StateData { world, .. } = data;

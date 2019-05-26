@@ -1,45 +1,39 @@
-use crate::consts::{WALL_HEIGHT, WALL_WIDTH};
-
 use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 
 pub struct DebugText {
     pub log: Entity,
 }
 
-pub struct Wall {
+pub struct Pos {
     pub x: f32,
     pub y: f32,
-    pub width: f32,
-    pub height: f32,
 }
 
-impl Wall {
+impl Pos {
     pub fn new(x: f32, y: f32) -> Self {
-        Self {
-            x,
-            y,
-            ..Default::default()
-        }
+        Self { x, y }
     }
 }
 
-impl Default for Wall {
+impl Default for Pos {
     fn default() -> Self {
-        Self {
-            x: 0.0,
-            y: 0.0,
-            width: WALL_WIDTH,
-            height: WALL_HEIGHT,
-        }
+        Self { x: 0.0, y: 0.0 }
     }
 }
 
-impl Component for Wall {
-    type Storage = DenseVecStorage<Self>;
-}
-
+pub struct Wall;
+pub struct Grass;
 pub struct Player;
 
-impl Component for Player {
-    type Storage = DenseVecStorage<Self>;
+macro_rules! impl_comp_for {
+    ($t:ty) => {
+        impl Component for $t {
+            type Storage = DenseVecStorage<Self>;
+        }
+    };
 }
+
+impl_comp_for!(Pos);
+impl_comp_for!(Wall);
+impl_comp_for!(Grass);
+impl_comp_for!(Player);

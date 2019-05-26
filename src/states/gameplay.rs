@@ -1,35 +1,19 @@
-use crate::battlefield::Battlefield;
 use crate::consts::{BATTLEFIELD_HEIGHT, BATTLEFIELD_WIDTH};
-//use crate::states::paused::PausedState;
 
 use amethyst::{
     core::transform::Transform,
     input::{is_close_requested, is_key_down},
     prelude::*,
-    renderer::{Camera, Projection, SpriteSheetHandle, VirtualKeyCode},
+    renderer::{Camera, Projection, VirtualKeyCode},
 };
 
-pub struct GamePlay {
-    battlefield: Battlefield,
-    sprite_sheet_handle: SpriteSheetHandle,
-}
-
-impl GamePlay {
-    pub fn new(battlefield: Battlefield, sprite_sheet_handle: SpriteSheetHandle) -> Self {
-        Self {
-            battlefield,
-            sprite_sheet_handle,
-        }
-    }
-}
+pub struct GamePlay;
 
 impl SimpleState for GamePlay {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let StateData { mut world, .. } = data;
 
         add_camera(&mut world);
-        self.battlefield
-            .add_walls(&mut world, self.sprite_sheet_handle.clone());
     }
 
     fn handle_event(
@@ -39,7 +23,6 @@ impl SimpleState for GamePlay {
     ) -> SimpleTrans {
         if let StateEvent::Window(event) = &event {
             if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
-                //return Trans::Push(Box::new(PausedState));
                 return Trans::Quit;
             }
         }
