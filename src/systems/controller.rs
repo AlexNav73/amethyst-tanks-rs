@@ -1,4 +1,4 @@
-use crate::components::Wall;
+use crate::components::Player;
 
 use amethyst::{
     core::{nalgebra::Vector3, timing::Time, Transform},
@@ -11,15 +11,15 @@ pub struct ControllerSystem;
 impl<'s> System<'s> for ControllerSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
-        ReadStorage<'s, Wall>,
+        ReadStorage<'s, Player>,
         Read<'s, InputHandler<String, String>>,
         Read<'s, Time>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut transforms, walls, input, time) = data;
+        let (mut transforms, player, input, time) = data;
         let delta = time.delta_seconds() as f64;
-        for (_, transform) in (&walls, &mut transforms).join() {
+        for (transform, _) in (&mut transforms, &player).join() {
             if let Some(vertical) = input.axis_value("vertical") {
                 let direction = Vector3::y_axis().into_inner() * vertical as f32;
                 transform.move_local(direction);

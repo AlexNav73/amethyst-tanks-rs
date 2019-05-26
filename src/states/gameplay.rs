@@ -15,9 +15,9 @@ pub struct GamePlay {
 }
 
 impl GamePlay {
-    pub fn new(sprite_sheet_handle: SpriteSheetHandle) -> Self {
+    pub fn new(battlefield: Battlefield, sprite_sheet_handle: SpriteSheetHandle) -> Self {
         Self {
-            battlefield: Battlefield,
+            battlefield,
             sprite_sheet_handle,
         }
     }

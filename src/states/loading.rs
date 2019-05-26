@@ -1,4 +1,6 @@
+use crate::battlefield::Battlefield;
 use crate::consts::{FONT, WALL_SPRITESHEET, WALL_TEXTURE};
+use crate::map::{Map, MapFormat, MapHandle, MapSource};
 use crate::states::gameplay::GamePlay;
 
 use amethyst::{
@@ -13,6 +15,7 @@ use amethyst::{
 pub struct LoadingState {
     progress_counter: ProgressCounter,
     sprite_sheet_handle: Option<SpriteSheetHandle>,
+    map_handle: Option<MapHandle>,
 }
 
 impl SimpleState for LoadingState {
@@ -22,14 +25,21 @@ impl SimpleState for LoadingState {
         let font_handle = self.load_font(world);
         view_debug_text(world, font_handle);
 
-        self.sprite_sheet_handle = Some(self.load_sprite_sheet(world));
+        self.load_sprite_sheet(world);
+        self.load_map(world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         if self.progress_counter.is_complete() {
             let sprite = self.sprite_sheet_handle.take().unwrap();
+            let map_storage = data.world.read_resource::<AssetStorage<Map>>();
+            let map_handle = self.map_handle.take().unwrap();
+            let map = map_storage
+                .get(&map_handle)
+                .expect("Acquire map by handle failed");
+            let battlefield = Battlefield::from_file(map);
 
-            return Trans::Switch(Box::new(GamePlay::new(sprite)));
+            return Trans::Switch(Box::new(GamePlay::new(battlefield, sprite)));
         } else {
             use crate::components::DebugText;
             let StateData { world, .. } = data;
@@ -54,10 +64,11 @@ impl LoadingState {
         Self {
             progress_counter: ProgressCounter::new(),
             sprite_sheet_handle: None,
+            map_handle: None,
         }
     }
 
-    fn load_sprite_sheet(&mut self, world: &mut World) -> SpriteSheetHandle {
+    fn load_sprite_sheet(&mut self, world: &mut World) {
         let loader = world.read_resource::<Loader>();
 
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
@@ -70,13 +81,15 @@ impl LoadingState {
         );
 
         let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-        loader.load(
+        let handle = loader.load(
             WALL_SPRITESHEET,
             SpriteSheetFormat,
             texture_handle,
             &mut self.progress_counter,
             &sprite_sheet_store,
-        )
+        );
+
+        self.sprite_sheet_handle = Some(handle);
     }
 
     fn load_font(&mut self, world: &mut World) -> FontHandle {
@@ -89,6 +102,26 @@ impl LoadingState {
             &mut self.progress_counter,
             &font_storage,
         )
+    }
+
+    fn load_map(&mut self, world: &mut World) {
+        {
+            let mut loader = world.write_resource::<Loader>();
+            loader.add_source("map_source", MapSource);
+        }
+
+        let loader = world.read_resource::<Loader>();
+        let map_storage = world.read_resource::<AssetStorage<Map>>();
+        let map_handle = loader.load_from(
+            "resources/maps/map1.ron",
+            MapFormat,
+            (),
+            "map_source",
+            &mut self.progress_counter,
+            &map_storage,
+        );
+
+        self.map_handle = Some(map_handle);
     }
 }
 

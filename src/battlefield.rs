@@ -1,5 +1,6 @@
 use crate::components::Wall;
-use crate::consts::BATTLEFIELD_HEIGHT;
+use crate::consts::{BATTLEFIELD_HEIGHT, WALL_HEIGHT, WALL_WIDTH};
+use crate::map::Map;
 
 use amethyst::{
     core::transform::Transform,
@@ -8,7 +9,7 @@ use amethyst::{
 };
 use pathfinding::prelude::{absdiff, astar};
 
-const SCALE: f32 = 0.05;
+const SCALE: f32 = 0.01;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 struct Pos(i32, i32);
@@ -35,9 +36,16 @@ impl Pos {
     }
 }
 
-pub struct Battlefield;
+pub struct Battlefield {
+    map: Vec<Vec<bool>>,
+}
 
 impl Battlefield {
+    pub fn from_file(map: &Map) -> Self {
+        let map = map.0.iter().map(parce_line).collect();
+        Self { map }
+    }
+
     #[allow(dead_code)]
     pub fn find(&self) {
         let result = astar(
@@ -50,22 +58,32 @@ impl Battlefield {
     }
 
     pub fn add_walls(&self, world: &mut World, sprite_sheet: SpriteSheetHandle) {
-        let mut wall: Wall = Default::default();
-        wall.y = BATTLEFIELD_HEIGHT / 2.0;
-        wall.x = wall.width * SCALE * 0.5;
+        const WIDTH: f32 = WALL_WIDTH * SCALE;
 
-        add_wall_to_world(wall, world, sprite_sheet);
+        let mut top = BATTLEFIELD_HEIGHT - (WALL_HEIGHT * SCALE * 0.5);
+        let mut left;
+        for line in &self.map {
+            left = WIDTH * 0.5;
+            for cell in line {
+                if *cell {
+                    let wall = Wall::new(left, top);
+                    place_wall(wall, world, sprite_sheet.clone());
+                }
+                left += WIDTH;
+            }
+            top -= WALL_HEIGHT * SCALE;
+        }
     }
 }
 
-fn add_wall_to_world(wall: Wall, world: &mut World, sprite_sheet: SpriteSheetHandle) {
+fn place_wall(wall: Wall, world: &mut World, sprite_sheet: SpriteSheetHandle) {
     let mut transform = Transform::default();
 
     transform.set_xyz(wall.x, wall.y, 0.0);
     transform.set_scale(SCALE, SCALE, 0.0);
 
     let sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet.clone(),
+        sprite_sheet: sprite_sheet,
         sprite_number: 0,
     };
 
@@ -75,4 +93,10 @@ fn add_wall_to_world(wall: Wall, world: &mut World, sprite_sheet: SpriteSheetHan
         .with(wall)
         .with(transform)
         .build();
+}
+
+fn parce_line(line: &String) -> Vec<bool> {
+    line.chars()
+        .map(|c| if c == '0' { false } else { true })
+        .collect()
 }

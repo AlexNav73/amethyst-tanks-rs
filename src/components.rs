@@ -14,22 +14,32 @@ pub struct Wall {
 }
 
 impl Wall {
-    pub fn new(width: f32, height: f32) -> Self {
+    pub fn new(x: f32, y: f32) -> Self {
         Self {
-            x: 0.0,
-            y: 0.0,
-            width,
-            height,
+            x,
+            y,
+            ..Default::default()
         }
     }
 }
 
 impl Default for Wall {
     fn default() -> Self {
-        Self::new(WALL_WIDTH, WALL_HEIGHT)
+        Self {
+            x: 0.0,
+            y: 0.0,
+            width: WALL_WIDTH,
+            height: WALL_HEIGHT,
+        }
     }
 }
 
 impl Component for Wall {
+    type Storage = DenseVecStorage<Self>;
+}
+
+pub struct Player;
+
+impl Component for Player {
     type Storage = DenseVecStorage<Self>;
 }
