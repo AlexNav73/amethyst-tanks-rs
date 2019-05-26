@@ -71,8 +71,9 @@ where
 fn parce_line(line: &String) -> Vec<MapCell> {
     line.chars()
         .map(|c| match c {
-            '0' => MapCell::Grass(Grass),
-            _ => MapCell::Wall(Wall),
+            'g' => MapCell::Grass(Grass),
+            'w' => MapCell::Wall(Wall),
+            _ => unreachable!(),
         })
         .collect()
 }
