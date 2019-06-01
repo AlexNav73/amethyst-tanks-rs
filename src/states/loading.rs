@@ -1,5 +1,5 @@
 use crate::assets::map::{MapAsset, MapFormat, MapHandle, MapSource};
-use crate::battlefield::Battlefield;
+use crate::battlefield::init_grid;
 use crate::consts::{FONT, WALL_SPRITESHEET, WALL_TEXTURE};
 use crate::map::Map;
 use crate::states::gameplay::GamePlay;
@@ -34,21 +34,10 @@ impl SimpleState for LoadingState {
         if self.progress_counter.is_complete() {
             use crate::components::{Grass, Wall};
 
-            let sprite = self.sprite_sheet_handle.take().unwrap();
-            let battlefield = {
-                let map_storage = data.world.read_resource::<AssetStorage<MapAsset>>();
-                let map_handle = self.map_handle.take().unwrap();
-                let map: Map = map_storage
-                    .get(&map_handle)
-                    .expect("Acquire map by handle failed")
-                    .into();
-                Battlefield::new(map)
-            };
-
             data.world.register::<Wall>();
             data.world.register::<Grass>();
 
-            battlefield.init_grid(data.world, sprite);
+            self.load_battlefield(data.world);
 
             return Trans::Switch(Box::new(GamePlay));
         } else {
@@ -133,6 +122,19 @@ impl LoadingState {
         );
 
         self.map_handle = Some(map_handle);
+    }
+
+    fn load_battlefield(&mut self, world: &mut World) {
+        let sprite = self.sprite_sheet_handle.take().unwrap();
+        let map: Map = {
+            let map_storage = world.read_resource::<AssetStorage<MapAsset>>();
+            let map_handle = self.map_handle.take().unwrap();
+            map_storage
+                .get(&map_handle)
+                .expect("Acquire map by handle failed")
+                .into()
+        };
+        init_grid(map, world, sprite);
     }
 }
 
