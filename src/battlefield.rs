@@ -1,13 +1,9 @@
 use crate::components::Pos;
 use crate::consts::{BATTLEFIELD_SIZE, CELL_SIZE};
 use crate::map::{Map, MapCell};
+use crate::utils::place;
 
-use amethyst::{
-    core::transform::Transform,
-    ecs::prelude::Component,
-    prelude::*,
-    renderer::{SpriteRender, SpriteSheetHandle},
-};
+use amethyst::{prelude::*, renderer::SpriteSheetHandle};
 
 pub struct Battlefield {
     map: Map,
@@ -29,9 +25,9 @@ impl Battlefield {
             for cell in line {
                 let pos = Pos::new(left, top);
                 match cell {
-                    MapCell::Wall(w) => place(w, pos, 0, scale, world, sprite_sheet.clone()),
-                    MapCell::Grass(g) => place(g, pos, 1, scale, world, sprite_sheet.clone()),
-                    MapCell::Player(p) => {
+                    MapCell::Wall(w) => place(w, pos, scale, world, sprite_sheet.clone()),
+                    MapCell::Grass(g) => place(g, pos, scale, world, sprite_sheet.clone()),
+                    MapCell::Player(_) => {
                         //use crate::components::Grass;
 
                         //place(Grass, pos, 1, scale, world, sprite_sheet.clone());
@@ -43,32 +39,4 @@ impl Battlefield {
             top -= CELL_SIZE * scale;
         }
     }
-}
-
-fn place<T>(
-    comp: T,
-    pos: Pos,
-    sprite: usize,
-    scale: f32,
-    world: &mut World,
-    sprite_sheet: SpriteSheetHandle,
-) where
-    T: Component + Send + Sync,
-{
-    let mut transform = Transform::default();
-
-    transform.set_xyz(pos.x, pos.y, 0.0);
-    transform.set_scale(scale, scale, 0.0);
-
-    let sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet,
-        sprite_number: sprite,
-    };
-
-    world
-        .create_entity()
-        .with(sprite_render)
-        .with(comp)
-        .with(transform)
-        .build();
 }

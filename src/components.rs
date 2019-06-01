@@ -38,3 +38,19 @@ impl_comp_for!(Pos);
 impl_comp_for!(Wall);
 impl_comp_for!(Grass);
 impl_comp_for!(Player);
+
+pub trait Drawable: Component + Send + Sync {
+    const SPRITE: usize;
+}
+
+macro_rules! impl_drawable {
+    ($t:ty, $s:literal) => {
+        impl Drawable for $t {
+            const SPRITE: usize = $s;
+        }
+    };
+}
+
+impl_drawable!(Wall, 0);
+impl_drawable!(Grass, 1);
+impl_drawable!(Player, 2);

@@ -6,6 +6,7 @@ mod consts;
 mod map;
 mod states;
 mod systems;
+mod utils;
 
 use amethyst::{
     assets::Processor,
