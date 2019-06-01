@@ -1,6 +1,7 @@
+use crate::assets::map::{MapAsset, MapFormat, MapHandle, MapSource};
 use crate::battlefield::Battlefield;
 use crate::consts::{FONT, WALL_SPRITESHEET, WALL_TEXTURE};
-use crate::map::{Map, MapFormat, MapHandle, MapSource};
+use crate::map::Map;
 use crate::states::gameplay::GamePlay;
 
 use amethyst::{
@@ -35,12 +36,13 @@ impl SimpleState for LoadingState {
 
             let sprite = self.sprite_sheet_handle.take().unwrap();
             let battlefield = {
-                let map_storage = data.world.read_resource::<AssetStorage<Map>>();
+                let map_storage = data.world.read_resource::<AssetStorage<MapAsset>>();
                 let map_handle = self.map_handle.take().unwrap();
-                let map = map_storage
+                let map: Map = map_storage
                     .get(&map_handle)
-                    .expect("Acquire map by handle failed");
-                Battlefield::from_file(map)
+                    .expect("Acquire map by handle failed")
+                    .into();
+                Battlefield::new(map)
             };
 
             data.world.register::<Wall>();
@@ -120,7 +122,7 @@ impl LoadingState {
         }
 
         let loader = world.read_resource::<Loader>();
-        let map_storage = world.read_resource::<AssetStorage<Map>>();
+        let map_storage = world.read_resource::<AssetStorage<MapAsset>>();
         let map_handle = loader.load_from(
             "resources/maps/map1.ron",
             MapFormat,

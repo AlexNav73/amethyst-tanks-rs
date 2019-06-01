@@ -1,73 +1,36 @@
-use amethyst::{
-    assets::{self, Asset, Handle, ProcessingState, ResultExt, SimpleFormat},
-    ecs::VecStorage,
-};
-use ron::de::Deserializer;
-use serde::{Deserialize, Serialize};
+use crate::assets::map::MapAsset;
+use crate::components::{Grass, Player, Wall};
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
-pub struct Map(pub Vec<String>);
-
-pub type MapHandle = Handle<Map>;
-
-impl Asset for Map {
-    const NAME: &'static str = "amethyst_tanks_rs::Map";
-
-    type Data = Self;
-    type HandleStorage = VecStorage<MapHandle>;
+pub struct Map {
+    pub grid: Vec<Vec<MapCell>>,
 }
 
-impl From<Map> for assets::Result<ProcessingState<Map>> {
-    fn from(value: Map) -> assets::Result<ProcessingState<Map>> {
-        Ok(ProcessingState::Loaded(value))
+impl Map {
+    pub fn size(&self) -> f32 {
+        self.grid.first().map(|x| x.len() as f32).unwrap_or(1.0)
     }
 }
 
-#[derive(Clone, Copy, Debug, Default)]
-pub struct MapFormat;
+pub enum MapCell {
+    Wall(Wall),
+    Grass(Grass),
+    Player(Player),
+}
 
-impl<A> SimpleFormat<A> for MapFormat
-where
-    A: Asset,
-    A::Data: for<'a> Deserialize<'a> + Send + Sync + 'static,
-{
-    const NAME: &'static str = "Map";
-
-    type Options = ();
-
-    fn import(&self, bytes: Vec<u8>, _: ()) -> Result<A::Data, assets::Error> {
-        let mut deserializer =
-            Deserializer::from_bytes(&bytes).chain_err(|| "Failed deserialize map file")?;
-
-        let val =
-            A::Data::deserialize(&mut deserializer).chain_err(|| "Failed parsing map file")?;
-
-        deserializer.end().chain_err(|| "Failed parsing map file")?;
-
-        Ok(val)
+impl From<&MapAsset> for Map {
+    fn from(asset: &MapAsset) -> Map {
+        let grid = asset.0.iter().map(from_str).collect();
+        Self { grid }
     }
 }
 
-#[derive(Debug)]
-pub struct MapSource;
-
-impl assets::Source for MapSource {
-    fn modified(&self, _path: &str) -> assets::Result<u64> {
-        Ok(0)
-    }
-
-    fn load(&self, path: &str) -> assets::Result<Vec<u8>> {
-        use std::fs::File;
-        use std::io::{BufReader, Read};
-
-        let file = File::open(path).chain_err(|| "Failed open map file")?;
-        let mut reader = BufReader::new(file);
-
-        let mut bytes = Vec::new();
-        reader
-            .read_to_end(&mut bytes)
-            .chain_err(|| "Failed read map file")?;
-
-        Ok(bytes)
-    }
+fn from_str(row: &String) -> Vec<MapCell> {
+    row.chars()
+        .map(|c| match c {
+            'g' => MapCell::Grass(Grass),
+            'w' => MapCell::Wall(Wall),
+            'p' => MapCell::Player(Player),
+            _ => unreachable!(),
+        })
+        .collect()
 }

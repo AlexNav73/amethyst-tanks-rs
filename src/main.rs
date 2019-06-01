@@ -1,3 +1,4 @@
+mod assets;
 mod battlefield;
 mod components;
 mod config;
@@ -18,8 +19,8 @@ use amethyst::{
     Logger,
 };
 
+use crate::assets::map::MapAsset;
 use crate::config::GameConfig;
-use crate::map::Map;
 use crate::states::loading::LoadingState;
 use crate::systems::{controller::ControllerSystem, debugging::DebuggingSystem};
 
@@ -52,7 +53,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
         .with_bundle(UiBundle::<String, String>::new())?
-        .with(Processor::<Map>::new(), "", &[])
+        .with(Processor::<MapAsset>::new(), "", &[])
         .with(ControllerSystem, "controller_system", &["input_system"])
         .with(DebuggingSystem, "debugging_system", &[]);
 

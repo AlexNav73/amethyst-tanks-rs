@@ -1,4 +1,4 @@
-use crate::consts::{BATTLEFIELD_HEIGHT, BATTLEFIELD_WIDTH};
+use crate::consts::BATTLEFIELD_SIZE;
 
 use amethyst::{
     core::transform::Transform,
@@ -39,9 +39,9 @@ fn add_camera(world: &mut World) {
         .create_entity()
         .with(Camera::from(Projection::orthographic(
             0.0,
-            BATTLEFIELD_WIDTH,
+            BATTLEFIELD_SIZE,
             0.0,
-            BATTLEFIELD_HEIGHT,
+            BATTLEFIELD_SIZE,
         )))
         .with(transform)
         .build();

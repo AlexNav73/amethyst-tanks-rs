@@ -1,6 +1,6 @@
-use crate::components::{Grass, Pos, Wall};
-use crate::consts::{BATTLEFIELD_HEIGHT, BATTLEFIELD_WIDTH, CELL_HEIGHT, CELL_WIDTH};
-use crate::map::Map;
+use crate::components::Pos;
+use crate::consts::{BATTLEFIELD_SIZE, CELL_SIZE};
+use crate::map::{Map, MapCell};
 
 use amethyst::{
     core::transform::Transform,
@@ -9,38 +9,38 @@ use amethyst::{
     renderer::{SpriteRender, SpriteSheetHandle},
 };
 
-pub enum MapCell {
-    Wall(Wall),
-    Grass(Grass),
-}
-
 pub struct Battlefield {
-    map: Vec<Vec<MapCell>>,
+    map: Map,
 }
 
 impl Battlefield {
-    pub fn from_file(map: &Map) -> Self {
-        let map = map.0.iter().map(parce_line).collect();
+    pub fn new(map: Map) -> Self {
         Self { map }
     }
 
     pub fn init_grid(self, world: &mut World, sprite_sheet: SpriteSheetHandle) {
-        let grid_width = self.map.first().map(|x| x.len() as f32).unwrap_or(1.0);
-        let scale = BATTLEFIELD_WIDTH / (CELL_WIDTH * grid_width);
-        let width = CELL_WIDTH * scale;
-        let mut top = BATTLEFIELD_HEIGHT - (CELL_HEIGHT * scale * 0.5);
+        let grid_width = self.map.size();
+        let scale = BATTLEFIELD_SIZE / (CELL_SIZE * grid_width);
+        let width = CELL_SIZE * scale;
+        let mut top = BATTLEFIELD_SIZE - (CELL_SIZE * scale * 0.5);
         let mut left;
-        for line in self.map {
+        for line in self.map.grid {
             left = width * 0.5;
             for cell in line {
                 let pos = Pos::new(left, top);
                 match cell {
                     MapCell::Wall(w) => place(w, pos, 0, scale, world, sprite_sheet.clone()),
                     MapCell::Grass(g) => place(g, pos, 1, scale, world, sprite_sheet.clone()),
+                    MapCell::Player(p) => {
+                        //use crate::components::Grass;
+
+                        //place(Grass, pos, 1, scale, world, sprite_sheet.clone());
+                        //place(p, pos, 2, scale, world, sprite_sheet.clone());
+                    }
                 }
                 left += width;
             }
-            top -= CELL_HEIGHT * scale;
+            top -= CELL_SIZE * scale;
         }
     }
 }
@@ -71,14 +71,4 @@ fn place<T>(
         .with(comp)
         .with(transform)
         .build();
-}
-
-fn parce_line(line: &String) -> Vec<MapCell> {
-    line.chars()
-        .map(|c| match c {
-            'g' => MapCell::Grass(Grass),
-            'w' => MapCell::Wall(Wall),
-            _ => unreachable!(),
-        })
-        .collect()
 }

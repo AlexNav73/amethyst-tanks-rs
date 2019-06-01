@@ -4,6 +4,7 @@ pub struct DebugText {
     pub log: Entity,
 }
 
+#[derive(Copy, Clone)]
 pub struct Pos {
     pub x: f32,
     pub y: f32,
